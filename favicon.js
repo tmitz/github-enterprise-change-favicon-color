@@ -1,7 +1,9 @@
-chrome.extension.sendMessage({color: localStorage['color']}, function(response) {
+chrome.extension.sendMessage({color: localStorage['color'], icon_size: localStorage['icon_size']}, function(response) {
+
     if (response.cache_clear == 1) {
         localStorage.removeItem('favicon');
         localStorage.removeItem('color');
+        localStorage.removeItem('icon_size');
     }
     var link = document.querySelector("link[rel~='icon']");
     if (!link) {
@@ -21,17 +23,19 @@ chrome.extension.sendMessage({color: localStorage['color']}, function(response) 
             link.href = localStorage["favicon"];
         } else {
             var canvas = document.createElement("canvas");
-            canvas.width = 32;
-            canvas.height = 32;
+            var size = parseInt(response.icon_size);
+            canvas.width = size;
+            canvas.height = size;
             var context = canvas.getContext("2d");
             context.drawImage(img, 0, 0);
             context.globalCompositeOperation = "source-in";
             context.fillStyle = response.color;
-            context.fillRect(0, 0, 32, 32);
+            context.fillRect(0, 0, size, size);
             context.fill();
             link.href = canvas.toDataURL();
             localStorage["favicon"] = canvas.toDataURL();
             localStorage["color"] = response.color;
+            localStorage["icon_size"] = size;
         }
     };
 });
